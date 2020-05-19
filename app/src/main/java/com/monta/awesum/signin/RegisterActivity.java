@@ -154,7 +154,7 @@ public class RegisterActivity extends AppCompatActivity {
 
                         //Write user info to database
                         String uid = auth.getCurrentUser().getUid();
-                        User user = new User(uid, username, fullname, email, AwesumApp.DEFAULT_PROFILE_IMAGE, null);
+                        User user = new User(uid, username.toLowerCase(), fullname, email, AwesumApp.DEFAULT_PROFILE_IMAGE, null);
                         FirebaseDatabase.getInstance().getReference(AwesumApp.DB_USER).child(uid).setValue(user);
 
                         //Get notification Token && preserve at local and server

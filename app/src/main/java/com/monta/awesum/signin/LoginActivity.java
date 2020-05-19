@@ -67,7 +67,7 @@ public class LoginActivity extends AppCompatActivity {
                 progressDialog.setCancelable(false);
                 progressDialog.setCanceledOnTouchOutside(false);
 
-                String emailRaw = emailEditText.getText().toString().trim();
+                String emailRaw = emailEditText.getText().toString().trim().toLowerCase();
                 String password = passwordEditText.getText().toString();
                 if (emailRaw.contains("@")) {
                     loginWithEmail(emailRaw, password);
