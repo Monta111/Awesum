@@ -1,9 +1,7 @@
 package com.monta.awesum.activity;
 
-import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -17,8 +15,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
 import com.google.firebase.database.DataSnapshot;
@@ -38,8 +34,6 @@ import com.vanniktech.emoji.EmojiPopup;
 
 public class EditProfileActivity extends AppCompatActivity {
 
-    private static final int PERMISSION_CAMERA_CODE = 10;
-
     private ImageView closeEdit;
     private TextView doneEdit;
     private ImageView profileImageEdit;
@@ -52,7 +46,6 @@ public class EditProfileActivity extends AppCompatActivity {
     private String userId;
     private String oldUsername;
     private DatabaseReference userRef;
-    private DatabaseReference userShortRef;
     private Uri profileImageUri;
     private boolean isEditProfileImage;
     private EmojiPopup emojiPopup;
@@ -77,20 +70,13 @@ public class EditProfileActivity extends AppCompatActivity {
         emojiPopup = EmojiPopup.Builder.fromRootView(findViewById(android.R.id.content)).build(bioEdit);
 
         userRef = FirebaseDatabase.getInstance().getReference(AwesumApp.DB_USER).child(userId);
-        userShortRef = FirebaseDatabase.getInstance().getReference(AwesumApp.DB_USER_SHORT);
 
         setCurrentInfo();
         setCloseEditAction();
         setOnClickSmile();
         setDoneEditAction();
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.CAMERA}, PERMISSION_CAMERA_CODE);
-        } else {
-            setEditProfileImageAction();
-        }
+        setEditProfileImageAction();
     }
 
     private void setCurrentInfo() {
@@ -139,13 +125,11 @@ public class EditProfileActivity extends AppCompatActivity {
 
                 String username = usernameEdit.getText().toString().trim();
                 if (!username.equals(oldUsername)) {
-                    userShortRef.child(username).addListenerForSingleValueEvent(new ValueEventListener() {
+                    FirebaseDatabase.getInstance().getReference(AwesumApp.DB_USER).orderByChild("username").equalTo(username).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                             if (dataSnapshot.getValue() == null) {
                                 userRef.child("username").setValue(username);
-                                userShortRef.child(oldUsername).removeValue();
-                                userShortRef.child(username).setValue(emailEdit.getText().toString());
                                 userRef.child("fullname").setValue(fullnameEdit.getText().toString());
                                 userRef.child("bio").setValue(bioEdit.getText().toString());
                                 if (isEditProfileImage) {
@@ -200,6 +184,10 @@ public class EditProfileActivity extends AppCompatActivity {
         });
     }
 
+    private void uploadProfileImage() {
+    }
+
+
     private void setEditProfileImageAction() {
         profileImageEdit.setOnClickListener(v -> CropImage.activity()
                 .setGuidelines(CropImageView.Guidelines.ON)
@@ -231,14 +219,5 @@ public class EditProfileActivity extends AppCompatActivity {
                 isEditProfileImage = true;
             }
         }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == PERMISSION_CAMERA_CODE && grantResults.length > 0 &&
-                grantResults[0] == PackageManager.PERMISSION_GRANTED)
-            setEditProfileImageAction();
-        else
-            finish();
     }
 }

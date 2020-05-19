@@ -19,8 +19,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.monta.awesum.AwesumApp;
@@ -120,10 +120,11 @@ public class RegisterActivity extends AppCompatActivity {
         progressDialog.setCanceledOnTouchOutside(false);
 
         //Check exist username
-        DatabaseReference userShortRef = FirebaseDatabase.getInstance().getReference(AwesumApp.DB_USER_SHORT)
-                .child(username);
-        userShortRef.keepSynced(true);
-        userShortRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        Query userRef = FirebaseDatabase.getInstance().getReference(AwesumApp.DB_USER)
+                .orderByChild("username")
+                .equalTo(username);
+        userRef.keepSynced(true);
+        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue() == null) {
@@ -174,10 +175,6 @@ public class RegisterActivity extends AppCompatActivity {
                                             .child("notificationToken")
                                             .child(token)
                                             .setValue(System.currentTimeMillis());
-
-
-                                    FirebaseDatabase.getInstance().getReference(AwesumApp.DB_USER_SHORT)
-                                            .child(username).setValue(email);
 
                                     //Make needed data always fresh
                                     String id = FirebaseAuth.getInstance().getCurrentUser().getUid();

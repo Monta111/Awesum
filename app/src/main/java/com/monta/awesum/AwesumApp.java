@@ -17,7 +17,6 @@ public class AwesumApp extends Application {
     public static final String DB_FOLLOW = "Follow";
     public static final String DB_SAVE = "Save";
     public static final String DB_USER = "User";
-    public static final String DB_USER_SHORT = "UserShort";
     public static final String DB_NOTIFICATION = "Notification";
     public static final String DB_COMMENT = "Comment";
     public static final String DB_LIKE = "Like";

@@ -18,13 +18,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.monta.awesum.AwesumApp;
 import com.monta.awesum.R;
 import com.monta.awesum.activity.MainActivity;
+import com.monta.awesum.model.User;
 import com.monta.awesum.ultility.Ultility;
 
 public class LoginActivity extends AppCompatActivity {
@@ -71,18 +72,23 @@ public class LoginActivity extends AppCompatActivity {
                 if (emailRaw.contains("@")) {
                     loginWithEmail(emailRaw, password);
                 } else {
-                    DatabaseReference userShortRef = FirebaseDatabase.getInstance().getReference(AwesumApp.DB_USER_SHORT)
-                            .child(emailRaw);
-                    userShortRef.keepSynced(true);
-                    userShortRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    Query userRef = FirebaseDatabase.getInstance().getReference(AwesumApp.DB_USER)
+                            .orderByChild("username")
+                            .equalTo(emailRaw);
+                    userRef.keepSynced(true);
+                    userRef.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                             if (dataSnapshot.getValue() == null) {
                                 Toast.makeText(LoginActivity.this, getString(R.string.username_not_exist), Toast.LENGTH_SHORT).show();
                                 progressDialog.dismiss();
                             } else {
-                                String email = (String) dataSnapshot.getValue();
-                                loginWithEmail(email, password);
+                                for (DataSnapshot data : dataSnapshot.getChildren()) {
+                                    User user = data.getValue(User.class);
+                                    loginWithEmail(user.getEmail(), password);
+                                    break;
+                                }
+
                             }
                         }
 
@@ -143,7 +149,7 @@ public class LoginActivity extends AppCompatActivity {
                 });
     }
 
-    //Go go register activity if user dont have account
+    //Go to register activity if user dont have account
     private void setRedirectToRegister() {
         registerTextView.setOnClickListener(v -> {
             startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
