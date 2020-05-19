@@ -99,8 +99,16 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentH
                 if (user != null) {
                     holder.username = user.getUsername();
                     String full = user.getUsername() + " " + comment.getComment();
-                    String shortCmt = full.substring(0, Math.min(full.length(), 80));
-                    String s = " See more";
+
+                    String shortCmt = full;
+                    char[] a = full.toCharArray();
+                    for (int i = 80; i < a.length; ++i)
+                        if (a[i] == ' ') {
+                            shortCmt = full.substring(0, i);
+                            break;
+                        }
+
+                    String s = context.getString(R.string.see_more);
 
                     SpannableString fullComment = new SpannableString(full);
                     fullComment.setSpan(new StyleSpan(Typeface.BOLD), 0, user.getUsername().length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
@@ -122,7 +130,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentH
                         }
                     };
 
-                    shortComment.setSpan(clickableSpan, shortCmt.length() + 1, shortCmt.length() + s.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    shortComment.setSpan(clickableSpan, shortCmt.length(), shortCmt.length() + s.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
                     if (fullComment.length() < 80)
                         holder.usernameWithComment.setText(fullComment);

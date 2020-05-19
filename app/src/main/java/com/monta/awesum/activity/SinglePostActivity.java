@@ -72,8 +72,6 @@ public class SinglePostActivity extends AppCompatActivity {
         TextView title = findViewById(R.id.title_single_post);
 
         postId = getIntent().getStringExtra("postId");
-//        publisher = getIntent().getStringExtra("username");
-
 
         FirebaseDatabase.getInstance().getReference(AwesumApp.DB_POST).child(postId).child("publisherId")
                 .addListenerForSingleValueEvent(new ValueEventListener() {
