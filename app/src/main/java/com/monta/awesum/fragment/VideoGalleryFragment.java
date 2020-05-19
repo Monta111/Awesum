@@ -4,7 +4,6 @@ import android.content.ContentUris;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,23 +18,22 @@ import androidx.loader.content.CursorLoader;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.monta.awesum.R;
 import com.monta.awesum.adapter.GridMediaGalleryAdapter;
 import com.monta.awesum.model.Post;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VideoGalleryFragment extends Fragment {
+public class VideoGalleryFragment extends Fragment implements GridMediaGalleryAdapter.ItemClickListener {
 
     private ImageView close;
     private ImageView done;
     private GridMediaGalleryAdapter adapter;
 
-    private int itemType;
     private List<Uri> selectedList;
+    private List<Uri> uriGalleryList;
 
     private VideoGalleryInterface videoGalleryListener;
 
@@ -51,13 +49,11 @@ public class VideoGalleryFragment extends Fragment {
         close = view.findViewById(R.id.close);
         done = view.findViewById(R.id.done);
 
-        if (getArguments() != null) {
-            itemType = getArguments().getInt("itemType", 0);
-        }
-
         RecyclerView rv = view.findViewById(R.id.grid_image);
-        adapter = new GridMediaGalleryAdapter(getContext(), getAllVideoFromGallery());
+        uriGalleryList = getAllVideoFromGallery();
+        adapter = new GridMediaGalleryAdapter(getContext(), uriGalleryList);
         adapter.setItemType(Post.VIDEO_TYPE_ITEM);
+        adapter.setListener(this);
         rv.setAdapter(adapter);
         rv.setLayoutManager(new GridLayoutManager(getContext(), 3));
 
@@ -125,9 +121,24 @@ public class VideoGalleryFragment extends Fragment {
         return allVideos;
     }
 
-    private File createImageFile() throws IOException {
-        File storageDir = getContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        return File.createTempFile("temp", ".jpg", storageDir);
+    @Override
+    public void setItemClickListener(GridMediaGalleryAdapter.GridMediaHolder holder) {
+        if (holder.isSelected) {
+            selectedList.remove(uriGalleryList.get(holder.getAdapterPosition()));
+            holder.icon.setVisibility(View.GONE);
+            holder.isSelected = false;
+
+        } else {
+            if (selectedList.size() < 1) {
+                selectedList.add(uriGalleryList.get(holder.getAdapterPosition()));
+                holder.icon.setVisibility(View.VISIBLE);
+                Glide.with(getContext()).load(R.drawable.ic_image_selected).into(holder.icon);
+                holder.isSelected = true;
+            } else
+                Toast.makeText(getContext(), getContext().getString(R.string.max_video), Toast.LENGTH_SHORT).show();
+
+        }
+
     }
 
     public interface VideoGalleryInterface {

@@ -18,6 +18,7 @@ import androidx.loader.content.CursorLoader;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.monta.awesum.R;
 import com.monta.awesum.adapter.GridMediaGalleryAdapter;
 import com.monta.awesum.model.Post;
@@ -25,12 +26,13 @@ import com.monta.awesum.model.Post;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ImageGalleryFragment extends Fragment {
+public class ImageGalleryFragment extends Fragment implements GridMediaGalleryAdapter.ItemClickListener {
 
     private ImageView close;
     private ImageView done;
     private GridMediaGalleryAdapter adapter;
     private List<Uri> selectedList;
+    private List<Uri> uriGalleryList;
 
     private ImageGalleryInterface imageGalleryListener;
 
@@ -47,9 +49,10 @@ public class ImageGalleryFragment extends Fragment {
         done = view.findViewById(R.id.done);
 
         RecyclerView rv = view.findViewById(R.id.grid_image);
-        // adapter = new GridMediaAdapter(getContext(), null, getAllImageFromGallery(), null);
-        adapter = new GridMediaGalleryAdapter(getContext(), getAllImageFromGallery());
+        uriGalleryList = getAllImageFromGallery();
+        adapter = new GridMediaGalleryAdapter(getContext(), uriGalleryList);
         adapter.setItemType(Post.IMAGE_TYPE_ITEM);
+        adapter.setListener(this);
         rv.setAdapter(adapter);
         rv.setLayoutManager(new GridLayoutManager(getContext(), 3));
 
@@ -66,11 +69,11 @@ public class ImageGalleryFragment extends Fragment {
 
     private void setDoneAction() {
         done.setOnClickListener(v -> {
-            selectedList = adapter.getSelectedMediaToPost();
             if (selectedList.size() == 0)
                 Toast.makeText(getContext(), getString(R.string.zero_image), Toast.LENGTH_SHORT).show();
             else {
                 ArrayList<String> uriStringList = new ArrayList<>();
+
                 for (Uri uri : selectedList)
                     uriStringList.add(uri.toString());
                 imageGalleryListener.setDoneChooseImage(uriStringList);
@@ -115,6 +118,27 @@ public class ImageGalleryFragment extends Fragment {
             cursor.close();
         }
         return allImages;
+    }
+
+    @Override
+    public void setItemClickListener(GridMediaGalleryAdapter.GridMediaHolder holder) {
+        if (holder.isSelected) {
+            selectedList.remove(uriGalleryList.get(holder.getAdapterPosition()));
+            holder.icon.setVisibility(View.GONE);
+            holder.isSelected = false;
+
+        } else {
+            if (selectedList.size() < 6) {
+                selectedList.add(uriGalleryList.get(holder.getAdapterPosition()));
+                holder.icon.setVisibility(View.VISIBLE);
+                Glide.with(getContext()).load(R.drawable.ic_image_selected).into(holder.icon);
+                holder.isSelected = true;
+            } else {
+                Toast.makeText(getContext(), getContext().getString(R.string.max_image), Toast.LENGTH_SHORT).show();
+
+            }
+
+        }
     }
 
     public interface ImageGalleryInterface {

@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -31,6 +30,20 @@ public class GridMediaGalleryAdapter extends RecyclerView.Adapter<GridMediaGalle
 
     private List<Uri> selectedMediaToPost;
 
+    private ItemClickListener listener;
+
+    public void setListener(ItemClickListener listener) {
+        this.listener = listener;
+    }
+
+    private void setMediaClickChooseToPost(GridMediaHolder holder) {
+        holder.image.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.setItemClickListener(holder);
+            }
+        });
+    }
 
     public GridMediaGalleryAdapter(Context context, List<Uri> uriGalleryList) {
         this.context = context;
@@ -92,41 +105,8 @@ public class GridMediaGalleryAdapter extends RecyclerView.Adapter<GridMediaGalle
     }
 
 
-    private void setMediaClickChooseToPost(GridMediaHolder holder) {
-        holder.image.setOnClickListener(v -> {
-            if (holder.isSelected) {
-                selectedMediaToPost.remove(uriGalleryList.get(holder.getAdapterPosition()));
-                holder.icon.setVisibility(View.GONE);
-                holder.isSelected = false;
-
-            } else {
-                switch (itemType) {
-                    case Post.IMAGE_TYPE_ITEM:
-                        boolean lowerThanSix = selectedMediaToPost.size() < 6;
-                        if (lowerThanSix) {
-                            selectedMediaToPost.add(uriGalleryList.get(holder.getAdapterPosition()));
-                            holder.icon.setVisibility(View.VISIBLE);
-                            Glide.with(context).load(R.drawable.ic_image_selected).into(holder.icon);
-                            holder.isSelected = true;
-                        } else {
-                            Toast.makeText(context, context.getString(R.string.max_image), Toast.LENGTH_SHORT).show();
-                        }
-                        break;
-                    case Post.VIDEO_TYPE_ITEM:
-                        boolean lowerThanOne = selectedMediaToPost.size() < 1;
-                        if (lowerThanOne) {
-                            selectedMediaToPost.add(uriGalleryList.get(holder.getAdapterPosition()));
-                            holder.icon.setVisibility(View.VISIBLE);
-                            Glide.with(context).load(R.drawable.ic_image_selected).into(holder.icon);
-                            holder.isSelected = true;
-                        } else
-                            Toast.makeText(context, context.getString(R.string.max_video), Toast.LENGTH_SHORT).show();
-                        break;
-
-                }
-
-            }
-        });
+    public interface ItemClickListener {
+        void setItemClickListener(GridMediaHolder holder);
     }
 
     @Override
@@ -138,19 +118,17 @@ public class GridMediaGalleryAdapter extends RecyclerView.Adapter<GridMediaGalle
         this.itemType = itemType;
     }
 
-
     public List<Uri> getSelectedMediaToPost() {
         return selectedMediaToPost;
     }
 
-
-    static class GridMediaHolder extends RecyclerView.ViewHolder {
+    public static class GridMediaHolder extends RecyclerView.ViewHolder {
 
         private ImageView image;
-        private ImageView icon;
+        public ImageView icon;
         private TextView duration;
 
-        private boolean isSelected = false;
+        public boolean isSelected = false;
 
         GridMediaHolder(@NonNull View itemView) {
             super(itemView);
