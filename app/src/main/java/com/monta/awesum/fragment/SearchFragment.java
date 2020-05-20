@@ -239,7 +239,6 @@ public class SearchFragment extends Fragment {
         detachListener();
         if (query != null && listener != null)
             query.removeEventListener(listener);
-        userAdapter = null;
         recyclerView.setAdapter(null);
     }
 }

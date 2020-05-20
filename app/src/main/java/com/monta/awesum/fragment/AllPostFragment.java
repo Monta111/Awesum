@@ -77,7 +77,6 @@ public class AllPostFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        adapter = null;
         allPost.setAdapter(null);
     }
 }

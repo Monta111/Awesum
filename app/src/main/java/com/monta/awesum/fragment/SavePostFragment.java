@@ -75,7 +75,6 @@ public class SavePostFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        adapter = null;
         savePostRecyclerView.setAdapter(null);
     }
 }

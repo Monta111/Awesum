@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
@@ -32,6 +31,8 @@ import com.monta.awesum.adapter.StoryAdapter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 public class HomeFragment extends Fragment {
@@ -46,7 +47,6 @@ public class HomeFragment extends Fragment {
     private RecyclerView postRecyclerView;
     private SwipeRefreshLayout swipeRefreshLayout;
     private LinearLayout lonely;
-    private ImageView message;
     private long endTime;
     private boolean needLoadMore;
     private boolean stopLoad;
@@ -55,6 +55,7 @@ public class HomeFragment extends Fragment {
     private StoryAdapter storyAdapter;
     private List<String> idUserStoryList;
 
+    private ExecutorService executors;
 
     public HomeFragment() {
     }
@@ -65,7 +66,8 @@ public class HomeFragment extends Fragment {
         postRecyclerView = view.findViewById(R.id.post_recyclerview);
         swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_posts);
         lonely = view.findViewById(R.id.lonely);
-        message = view.findViewById(R.id.message);
+
+        executors = Executors.newFixedThreadPool(4);
 
         userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         postMainRef = FirebaseDatabase.getInstance().getReference().child(AwesumApp.DB_POSTMAIN).child(userId);
@@ -371,8 +373,6 @@ public class HomeFragment extends Fragment {
             }
         }
         detachListener();
-        postAdapter = null;
-        storyAdapter = null;
         postRecyclerView.setAdapter(null);
         storyRecyclerView.setAdapter(null);
     }

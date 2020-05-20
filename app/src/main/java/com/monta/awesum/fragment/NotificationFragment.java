@@ -212,7 +212,6 @@ public class NotificationFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        notificationAdapter = null;
         notificationRecyclerView.setAdapter(null);
     }
 }

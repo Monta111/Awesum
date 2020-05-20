@@ -104,6 +104,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostHolder> {
         holder.postId = idPostList.get(position);
 
         setHidePostStatus(holder);
+
         postRef.child(holder.postId).keepSynced(true);
         postRef.child(holder.postId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override

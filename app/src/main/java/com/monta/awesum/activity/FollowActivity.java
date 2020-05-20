@@ -204,7 +204,6 @@ public class FollowActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            userAdapter = null;
             followerRecyclerView.setAdapter(null);
             finish();
             return true;
@@ -215,7 +214,6 @@ public class FollowActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        userAdapter = null;
         followerRecyclerView.setAdapter(null);
     }
 }
