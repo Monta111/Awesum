@@ -69,7 +69,6 @@ public class VideoGalleryFragment extends Fragment implements GridMediaGalleryAd
 
     private void setDoneAction() {
         done.setOnClickListener(v -> {
-            selectedList = adapter.getSelectedMediaToPost();
             if (selectedList.size() == 0)
                 Toast.makeText(getContext(), getString(R.string.zero_image), Toast.LENGTH_SHORT).show();
             else {
@@ -134,8 +133,9 @@ public class VideoGalleryFragment extends Fragment implements GridMediaGalleryAd
                 holder.icon.setVisibility(View.VISIBLE);
                 Glide.with(getContext()).load(R.drawable.ic_image_selected).into(holder.icon);
                 holder.isSelected = true;
-            } else
+            } else {
                 Toast.makeText(getContext(), getContext().getString(R.string.max_video), Toast.LENGTH_SHORT).show();
+            }
 
         }
 

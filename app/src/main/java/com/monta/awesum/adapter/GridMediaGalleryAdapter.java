@@ -19,7 +19,6 @@ import com.monta.awesum.R;
 import com.monta.awesum.model.Post;
 import com.monta.awesum.ultility.Ultility;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class GridMediaGalleryAdapter extends RecyclerView.Adapter<GridMediaGalleryAdapter.GridMediaHolder> {
@@ -27,8 +26,6 @@ public class GridMediaGalleryAdapter extends RecyclerView.Adapter<GridMediaGalle
     private Context context;
     private List<Uri> uriGalleryList;
     private int itemType;
-
-    private List<Uri> selectedMediaToPost;
 
     private ItemClickListener listener;
 
@@ -48,8 +45,6 @@ public class GridMediaGalleryAdapter extends RecyclerView.Adapter<GridMediaGalle
     public GridMediaGalleryAdapter(Context context, List<Uri> uriGalleryList) {
         this.context = context;
         this.uriGalleryList = uriGalleryList;
-
-        selectedMediaToPost = new ArrayList<>();
     }
 
 
@@ -116,10 +111,6 @@ public class GridMediaGalleryAdapter extends RecyclerView.Adapter<GridMediaGalle
 
     public void setItemType(int itemType) {
         this.itemType = itemType;
-    }
-
-    public List<Uri> getSelectedMediaToPost() {
-        return selectedMediaToPost;
     }
 
     public static class GridMediaHolder extends RecyclerView.ViewHolder {
