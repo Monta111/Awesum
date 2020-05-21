@@ -14,7 +14,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.loader.content.CursorLoader;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -84,39 +83,29 @@ public class VideoGalleryFragment extends Fragment implements GridMediaGalleryAd
     private List<Uri> getAllVideoFromGallery() {
 
         List<Uri> allVideos = new ArrayList<>();
-        String[] projection = {
-                MediaStore.Files.FileColumns._ID,
-        };
+        if (getContext() != null) {
+            Cursor cursor = getContext().getApplicationContext().getContentResolver().query(
+                    MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+                    new String[]{MediaStore.Video.Media._ID},
+                    null,
+                    null,
+                    MediaStore.Video.Media.DATE_ADDED + " DESC"
+            );
 
-        String selection = MediaStore.Files.FileColumns.MEDIA_TYPE + "="
-                + MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
-
-        Uri queryUri = MediaStore.Files.getContentUri("external");
-
-        CursorLoader cursorLoader = new CursorLoader(
-                getContext(),
-                queryUri,
-                projection,
-                selection,
-                null, // Selection args (none).
-                MediaStore.Files.FileColumns.DATE_ADDED + " DESC" // Sort order.
-        );
-
-        Cursor cursor = cursorLoader.loadInBackground();
-        int fieldIndex;
-        long id;
-        if (cursor != null) {
-            cursor.moveToFirst();
-            fieldIndex = cursor.getColumnIndex(MediaStore.Video.Media._ID);
-            id = cursor.getLong(fieldIndex);
-            allVideos.add(ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, id));
-            while (cursor.moveToNext()) {
-                fieldIndex = cursor.getColumnIndex(MediaStore.Video.Media._ID);
-                id = cursor.getLong(fieldIndex);
-                allVideos.add(ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, id));
+            int fieldIndex;
+            long id;
+            if (cursor != null) {
+                while (cursor.moveToNext()) {
+                    fieldIndex = cursor.getColumnIndex(MediaStore.Video.Media._ID);
+                    id = cursor.getLong(fieldIndex);
+                    allVideos.add(ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, id));
+                }
+                cursor.close();
             }
-            cursor.close();
+
+            return allVideos;
         }
+
         return allVideos;
     }
 

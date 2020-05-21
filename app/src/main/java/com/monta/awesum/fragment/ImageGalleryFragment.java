@@ -14,7 +14,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.loader.content.CursorLoader;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -84,39 +83,30 @@ public class ImageGalleryFragment extends Fragment implements GridMediaGalleryAd
     private List<Uri> getAllImageFromGallery() {
 
         List<Uri> allImages = new ArrayList<>();
-        String[] projection = {
-                MediaStore.Files.FileColumns._ID,
-        };
 
-        String selection = MediaStore.Files.FileColumns.MEDIA_TYPE + "="
-                + MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
+        if (getContext() != null) {
+            Cursor cursor = getContext().getApplicationContext().getContentResolver().query(
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                    new String[]{MediaStore.Images.Media._ID},
+                    null,
+                    null,
+                    MediaStore.Images.Media.DATE_ADDED + " DESC"
+            );
 
-        Uri queryUri = MediaStore.Files.getContentUri("external");
-
-        CursorLoader cursorLoader = new CursorLoader(
-                getContext(),
-                queryUri,
-                projection,
-                selection,
-                null, // Selection args (none).
-                MediaStore.Files.FileColumns.DATE_ADDED + " DESC" // Sort order.
-        );
-
-        Cursor cursor = cursorLoader.loadInBackground();
-        int fieldIndex;
-        long id;
-        if (cursor != null) {
-            cursor.moveToFirst();
-            fieldIndex = cursor.getColumnIndex(MediaStore.Images.Media._ID);
-            id = cursor.getLong(fieldIndex);
-            allImages.add(ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id));
-            while (cursor.moveToNext()) {
-                fieldIndex = cursor.getColumnIndex(MediaStore.Images.Media._ID);
-                id = cursor.getLong(fieldIndex);
-                allImages.add(ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id));
+            int fieldIndex;
+            long id;
+            if (cursor != null) {
+                while (cursor.moveToNext()) {
+                    fieldIndex = cursor.getColumnIndex(MediaStore.Images.Media._ID);
+                    id = cursor.getLong(fieldIndex);
+                    allImages.add(ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id));
+                }
+                cursor.close();
             }
-            cursor.close();
+
+            return allImages;
         }
+
         return allImages;
     }
 
