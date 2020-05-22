@@ -95,9 +95,6 @@ public class HomeFragment extends Fragment {
 
         load();
 
-        //Use for test noti
-        //setOpenMessage();
-
         return view;
     }
 
@@ -270,15 +267,6 @@ public class HomeFragment extends Fragment {
             }
         });
     }
-
-    //Use for test noti
-//    private void setOpenMessage() {
-//        message.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//            }
-//        });
-//    }
 
     private void detachListener() {
         List<Query> followStatusRef = postAdapter.getFollowStatusRef();

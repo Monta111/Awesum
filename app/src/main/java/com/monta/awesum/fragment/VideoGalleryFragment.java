@@ -24,6 +24,8 @@ import com.monta.awesum.model.Post;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class VideoGalleryFragment extends Fragment implements GridMediaGalleryAdapter.ItemClickListener {
 
@@ -47,16 +49,19 @@ public class VideoGalleryFragment extends Fragment implements GridMediaGalleryAd
 
         close = view.findViewById(R.id.close);
         done = view.findViewById(R.id.done);
-
         RecyclerView rv = view.findViewById(R.id.grid_image);
-        uriGalleryList = getAllVideoFromGallery();
+
+
+        selectedList = new ArrayList<>();
+        uriGalleryList = new ArrayList<>();
+
         adapter = new GridMediaGalleryAdapter(getContext(), uriGalleryList);
         adapter.setItemType(Post.VIDEO_TYPE_ITEM);
         adapter.setListener(this);
         rv.setAdapter(adapter);
         rv.setLayoutManager(new GridLayoutManager(getContext(), 3));
 
-        selectedList = new ArrayList<>();
+        getAllVideoFromGallery();
         setCloseAction();
         setDoneAction();
         return view;
@@ -80,33 +85,37 @@ public class VideoGalleryFragment extends Fragment implements GridMediaGalleryAd
         });
     }
 
-    private List<Uri> getAllVideoFromGallery() {
+    private void getAllVideoFromGallery() {
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        executorService.execute(() -> {
+            if (getContext() != null) {
+                Cursor cursor = getContext().getApplicationContext().getContentResolver().query(
+                        MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+                        new String[]{MediaStore.Video.Media._ID},
+                        null,
+                        null,
+                        MediaStore.Video.Media.DATE_ADDED + " DESC"
+                );
 
-        List<Uri> allVideos = new ArrayList<>();
-        if (getContext() != null) {
-            Cursor cursor = getContext().getApplicationContext().getContentResolver().query(
-                    MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
-                    new String[]{MediaStore.Video.Media._ID},
-                    null,
-                    null,
-                    MediaStore.Video.Media.DATE_ADDED + " DESC"
-            );
+                int fieldIndex;
+                long id;
+                if (cursor != null) {
+                    while (cursor.moveToNext()) {
+                        fieldIndex = cursor.getColumnIndex(MediaStore.Video.Media._ID);
+                        id = cursor.getLong(fieldIndex);
+                        uriGalleryList.add(ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, id));
+                    }
+                    cursor.close();
 
-            int fieldIndex;
-            long id;
-            if (cursor != null) {
-                while (cursor.moveToNext()) {
-                    fieldIndex = cursor.getColumnIndex(MediaStore.Video.Media._ID);
-                    id = cursor.getLong(fieldIndex);
-                    allVideos.add(ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, id));
+                    getActivity().runOnUiThread(() -> {
+                        adapter.notifyDataSetChanged();
+                    });
+
                 }
-                cursor.close();
             }
+        });
 
-            return allVideos;
-        }
 
-        return allVideos;
     }
 
     @Override

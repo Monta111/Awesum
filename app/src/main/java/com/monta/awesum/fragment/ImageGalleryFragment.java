@@ -24,6 +24,8 @@ import com.monta.awesum.model.Post;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ImageGalleryFragment extends Fragment implements GridMediaGalleryAdapter.ItemClickListener {
 
@@ -46,16 +48,18 @@ public class ImageGalleryFragment extends Fragment implements GridMediaGalleryAd
 
         close = view.findViewById(R.id.close);
         done = view.findViewById(R.id.done);
-
         RecyclerView rv = view.findViewById(R.id.grid_image);
-        uriGalleryList = getAllImageFromGallery();
+
+        uriGalleryList = new ArrayList<>();
+        selectedList = new ArrayList<>();
+
         adapter = new GridMediaGalleryAdapter(getContext(), uriGalleryList);
         adapter.setItemType(Post.IMAGE_TYPE_ITEM);
         adapter.setListener(this);
         rv.setAdapter(adapter);
         rv.setLayoutManager(new GridLayoutManager(getContext(), 3));
 
-        selectedList = new ArrayList<>();
+        getAllImageFromGallery();
         setCloseAction();
         setDoneAction();
 
@@ -80,34 +84,38 @@ public class ImageGalleryFragment extends Fragment implements GridMediaGalleryAd
         });
     }
 
-    private List<Uri> getAllImageFromGallery() {
+    private void getAllImageFromGallery() {
 
-        List<Uri> allImages = new ArrayList<>();
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        executorService.execute(() -> {
+            if (getContext() != null) {
+                Cursor cursor = getContext().getApplicationContext().getContentResolver().query(
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        new String[]{MediaStore.Images.Media._ID},
+                        null,
+                        null,
+                        MediaStore.Images.Media.DATE_ADDED + " DESC"
+                );
 
-        if (getContext() != null) {
-            Cursor cursor = getContext().getApplicationContext().getContentResolver().query(
-                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                    new String[]{MediaStore.Images.Media._ID},
-                    null,
-                    null,
-                    MediaStore.Images.Media.DATE_ADDED + " DESC"
-            );
+                int fieldIndex;
+                long id;
+                if (cursor != null) {
+                    while (cursor.moveToNext()) {
+                        fieldIndex = cursor.getColumnIndex(MediaStore.Images.Media._ID);
+                        id = cursor.getLong(fieldIndex);
+                        uriGalleryList.add(ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id));
+                    }
+                    cursor.close();
 
-            int fieldIndex;
-            long id;
-            if (cursor != null) {
-                while (cursor.moveToNext()) {
-                    fieldIndex = cursor.getColumnIndex(MediaStore.Images.Media._ID);
-                    id = cursor.getLong(fieldIndex);
-                    allImages.add(ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id));
+                    getActivity().runOnUiThread(() -> {
+                        adapter.notifyDataSetChanged();
+                    });
                 }
-                cursor.close();
             }
+        });
 
-            return allImages;
-        }
 
-        return allImages;
+
     }
 
     @Override
