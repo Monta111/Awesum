@@ -10,7 +10,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -22,7 +21,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.monta.awesum.AwesumApp;
 import com.monta.awesum.R;
-import com.monta.awesum.activity.MainActivity;
 import com.monta.awesum.activity.PickMediaActivity;
 import com.monta.awesum.activity.StoryActivity;
 import com.monta.awesum.model.Story;
@@ -155,10 +153,6 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryHolder>
             Intent intent = new Intent(context, PickMediaActivity.class);
             intent.putExtra("itemType", Story.TYPE_ITEM);
             context.startActivity(intent);
-            AppCompatActivity activity = (AppCompatActivity) context;
-            if (activity instanceof MainActivity) {
-                ((MainActivity) activity).setReload(true);
-            }
         });
     }
 

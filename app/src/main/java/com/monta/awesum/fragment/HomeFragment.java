@@ -7,7 +7,6 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -31,8 +30,6 @@ import com.monta.awesum.adapter.StoryAdapter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 
 public class HomeFragment extends Fragment {
@@ -47,15 +44,22 @@ public class HomeFragment extends Fragment {
     private RecyclerView postRecyclerView;
     private SwipeRefreshLayout swipeRefreshLayout;
     private LinearLayout lonely;
-    private long endTime;
-    private boolean needLoadMore;
-    private boolean stopLoad;
 
     private RecyclerView storyRecyclerView;
     private StoryAdapter storyAdapter;
     private List<String> idUserStoryList;
 
-    private ExecutorService executors;
+    private Query initPost;
+    private ValueEventListener initPostListener;
+    private long endIdPost;
+
+    private Query storyQuery;
+    private ValueEventListener storyQueryListener;
+    private long startIdStory = System.currentTimeMillis() - 86400000;
+
+    private boolean needLoadMore;
+    private boolean stopLoad;
+    private boolean firstLoad = true;
 
     public HomeFragment() {
     }
@@ -66,8 +70,6 @@ public class HomeFragment extends Fragment {
         postRecyclerView = view.findViewById(R.id.post_recyclerview);
         swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_posts);
         lonely = view.findViewById(R.id.lonely);
-
-        executors = Executors.newFixedThreadPool(4);
 
         userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         postMainRef = FirebaseDatabase.getInstance().getReference().child(AwesumApp.DB_POSTMAIN).child(userId);
@@ -101,25 +103,13 @@ public class HomeFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        AppCompatActivity activity = (AppCompatActivity) getActivity();
-        if (activity instanceof MainActivity) {
-            if (((MainActivity) activity).isReload()) {
-                load();
-                ((MainActivity) activity).setReload(false);
-            }
-        }
-        attachListener();
+        if (!firstLoad)
+            attachListener();
     }
 
     private void load() {
         needLoadMore = true;
         stopLoad = false;
-
-        idUserStoryList.clear();
-        idPostList.clear();
-
-        postAdapter.notifyDataSetChanged();
-        storyAdapter.notifyDataSetChanged();
 
         releasePlayer();
         detachListener();
@@ -146,25 +136,27 @@ public class HomeFragment extends Fragment {
     }
 
     private void getStory() {
-        idUserStoryList.add(userId);
-        long t = System.currentTimeMillis() - 86400000;
-        Query query = storyMainRef.orderByChild("lastest").startAt(String.valueOf(t));
-        query.keepSynced(true);
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot data : dataSnapshot.getChildren()) {
-                    if (Long.parseLong((String) data.child("lastest").getValue()) > t)
-                        idUserStoryList.add(1, data.getKey());
+        storyQuery = storyMainRef.orderByChild("lastest").startAt(String.valueOf(startIdStory));
+        if (storyQueryListener == null)
+            storyQueryListener = new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    idUserStoryList.clear();
+                    idUserStoryList.add(userId);
+                    for (DataSnapshot data : dataSnapshot.getChildren()) {
+                        if (Long.parseLong((String) data.child("lastest").getValue()) > startIdStory)
+                            idUserStoryList.add(1, data.getKey());
+                    }
+                    storyAdapter.notifyDataSetChanged();
                 }
-                storyAdapter.notifyDataSetChanged();
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
 
-            }
-        });
+                }
+            };
+
+        storyQuery.addValueEventListener(storyQueryListener);
     }
 
     private void setRefreshAction() {
@@ -200,44 +192,46 @@ public class HomeFragment extends Fragment {
     }
 
     private void initializePosts() {
-        Query query = postMainRef.limitToLast(5);
-        query.keepSynced(true);
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getValue() == null) {
-                    lonely.setVisibility(View.VISIBLE);
-                    swipeRefreshLayout.setRefreshing(false);
-                } else {
-                    List<String> reverseList = new ArrayList<>();
-                    for (DataSnapshot data : dataSnapshot.getChildren()) {
-                        if (data.getValue() != null && (Boolean) data.getValue()) {
-                            reverseList.add(data.getKey());
-                        }
-                    }
-                    Collections.reverse(reverseList);
-                    if (reverseList.size() == 0)
+        initPost = postMainRef.limitToLast(5);
+        if (initPostListener == null)
+            initPostListener = new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    idPostList.clear();
+                    if (dataSnapshot.getValue() == null) {
                         lonely.setVisibility(View.VISIBLE);
-                    else {
-                        lonely.setVisibility(View.GONE);
-                        endTime = Long.parseLong(reverseList.get(reverseList.size() - 1)) - 1;
+                        swipeRefreshLayout.setRefreshing(false);
+                    } else {
+                        List<String> reverseList = new ArrayList<>();
+                        for (DataSnapshot data : dataSnapshot.getChildren()) {
+                            if (data.getValue() != null && (Boolean) data.getValue()) {
+                                reverseList.add(data.getKey());
+                            }
+                        }
+                        Collections.reverse(reverseList);
+                        if (reverseList.size() == 0)
+                            lonely.setVisibility(View.VISIBLE);
+                        else {
+                            lonely.setVisibility(View.GONE);
+                            endIdPost = Long.parseLong(reverseList.get(reverseList.size() - 1)) - 1;
+                        }
+                        idPostList.addAll(reverseList);
+                        postAdapter.notifyDataSetChanged();
+                        swipeRefreshLayout.setRefreshing(false);
                     }
-                    idPostList.addAll(reverseList);
-                    postAdapter.notifyDataSetChanged();
-                    swipeRefreshLayout.setRefreshing(false);
                 }
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
 
-            }
-        });
+                }
+            };
+        initPost.addValueEventListener(initPostListener);
     }
 
     private void loadMorePost() {
         swipeRefreshLayout.setRefreshing(true);
-        Query query = postMainRef.orderByKey().endAt(String.valueOf(endTime)).limitToLast(10);
+        Query query = postMainRef.orderByKey().endAt(String.valueOf(endIdPost)).limitToLast(10);
         query.keepSynced(true);
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -253,7 +247,7 @@ public class HomeFragment extends Fragment {
                     }
                     Collections.reverse(reverseList);
                     if (reverseList.size() >= 1)
-                        endTime = Long.parseLong(reverseList.get(reverseList.size() - 1)) - 1;
+                        endIdPost = Long.parseLong(reverseList.get(reverseList.size() - 1)) - 1;
                     idPostList.addAll(reverseList);
                     postAdapter.notifyItemRangeInserted(postAdapter.getItemCount(), reverseList.size());
                     swipeRefreshLayout.setRefreshing(false);
@@ -303,6 +297,12 @@ public class HomeFragment extends Fragment {
                     seenStatusStoryRef.get(i).removeEventListener(seenStatusListener.get(i));
             }
         }
+
+        if (initPost != null && initPostListener != null)
+            initPost.removeEventListener(initPostListener);
+
+        if (storyQuery != null && storyQueryListener != null)
+            storyQuery.removeEventListener(storyQueryListener);
     }
 
     private void attachListener() {
@@ -340,6 +340,12 @@ public class HomeFragment extends Fragment {
                     seenStatusStoryRef.get(i).addValueEventListener(seenStatusListener.get(i));
             }
         }
+
+        if (initPost != null && initPostListener != null)
+            initPost.addValueEventListener(initPostListener);
+
+        if (storyQuery != null && storyQueryListener != null)
+            storyQuery.addValueEventListener(storyQueryListener);
     }
 
     private void releasePlayer() {
@@ -360,7 +366,9 @@ public class HomeFragment extends Fragment {
                 player.setPlayWhenReady(false);
             }
         }
+
         detachListener();
+        firstLoad = false;
         postRecyclerView.setAdapter(null);
         storyRecyclerView.setAdapter(null);
     }

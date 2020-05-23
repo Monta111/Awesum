@@ -51,7 +51,6 @@ public class MainActivity extends AppCompatActivity {
     private Fragment selectedFragment;
 
     private boolean doubleBack = false;
-    private boolean reload = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,7 +104,6 @@ public class MainActivity extends AppCompatActivity {
                     Intent intent = new Intent(this, PickMediaActivity.class);
                     intent.putExtra("itemType", Post.IMAGE_TYPE_ITEM);
                     startActivity(intent);
-                    reload = true;
                     break;
                 }
                 case R.id.nav_profile: {
@@ -224,14 +222,6 @@ public class MainActivity extends AppCompatActivity {
         long queryTime = System.currentTimeMillis();
         queryNewPost = postMainRef.orderByKey().startAt(String.valueOf(queryTime));
         queryNewPost.addValueEventListener(listenerNewPost);
-    }
-
-    public boolean isReload() {
-        return reload;
-    }
-
-    public void setReload(boolean reload) {
-        this.reload = reload;
     }
 
     private void detachListener() {
