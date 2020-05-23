@@ -1,7 +1,6 @@
 # Awesum
 Using Firebase Authentication, Realtime Database, Storage and Cloud Functions
 ![Screenshot_20200523-201046](https://user-images.githubusercontent.com/51184479/82731962-61a0a680-9d34-11ea-9990-e0eee58d6482.jpg)
-![Screenshot_20200523-202335](https://user-images.githubusercontent.com/51184479/82731909-24d4af80-9d34-11ea-8d1a-2db45e8d0b2a.jpg)
 ![Screenshot_20200523-202024](https://user-images.githubusercontent.com/51184479/82731913-27cfa000-9d34-11ea-85e6-a8b034dc4656.jpg)
 ![Screenshot_20200523-201631](https://user-images.githubusercontent.com/51184479/82731914-28683680-9d34-11ea-9eb8-e9305528294c.jpg)
 ![Screenshot_20200523-201321](https://user-images.githubusercontent.com/51184479/82731924-37e77f80-9d34-11ea-9b20-3762fff827de.jpg)
