@@ -76,6 +76,8 @@ public class SearchFragment extends Fragment {
         setRefreshAction();
         setLoadMoreAction();
 
+        searchUser("");
+
         return view;
     }
 

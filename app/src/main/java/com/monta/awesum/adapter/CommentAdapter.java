@@ -98,6 +98,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentH
                 User user = dataSnapshot.getValue(User.class);
                 if (user != null) {
                     holder.username = user.getUsername();
+
                     String full = user.getUsername() + " " + comment.getComment();
 
                     String shortCmt = full;
