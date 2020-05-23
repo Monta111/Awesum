@@ -89,7 +89,7 @@ public class SearchFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                searchUser(s.toString().trim());
+                searchUser(s.toString().trim().toLowerCase());
             }
 
             @Override
