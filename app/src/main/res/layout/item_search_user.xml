@@ -46,7 +46,6 @@
         android:layout_width="100dp"
         android:layout_height="30dp"
         android:background="@drawable/button_selector"
-        android:stateListAnimator="@null"
         android:textAllCaps="false"
         android:textColor="@color/colorPrimary"
         android:visibility="gone" />

@@ -343,6 +343,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentH
                         send.setVisibility(View.VISIBLE);
                         editDone.setVisibility(View.GONE);
                         cancelEdit.setVisibility(View.GONE);
+                        content.setText("");
                         layout.setBackground(context.getResources().getDrawable(R.color.colorWhite));
                         Ultility.hideKeyboard(context);
                     } else

@@ -122,6 +122,7 @@ public class AddPostActivity extends AppCompatActivity implements GridMediaCropA
                     setCropImageSquare(true);
                     setUploadPost();
                     setOnClickSmile();
+                    Ultility.showKeyboard(this);
                     break;
                 case Post.VIDEO_TYPE_ITEM:
                     emojiPopup = EmojiPopup.Builder.fromRootView(findViewById(android.R.id.content)).build(description);
@@ -139,6 +140,7 @@ public class AddPostActivity extends AppCompatActivity implements GridMediaCropA
 
                     setUploadPost();
                     setOnClickSmile();
+                    Ultility.showKeyboard(this);
                     break;
                 case Story.TYPE_ITEM:
                     description.setVisibility(View.GONE);
@@ -159,7 +161,6 @@ public class AddPostActivity extends AppCompatActivity implements GridMediaCropA
         }
 
         setCloseAction();
-        Ultility.showKeyboard(this);
         description.requestFocus();
 
     }

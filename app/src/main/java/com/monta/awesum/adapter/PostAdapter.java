@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
@@ -603,7 +604,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostHolder> {
     }
 
     class PostHolder extends RecyclerView.ViewHolder implements PostOption.ItemOptionPostClickListener {
-        private LinearLayout itemPost;
+        private CardView itemPost;
         private ImageView profileImage;
         private TextView username;
         private TextView publisher;

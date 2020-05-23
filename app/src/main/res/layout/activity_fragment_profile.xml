@@ -187,7 +187,6 @@
         android:layout_marginRight="8dp"
         android:background="@drawable/button_selector"
         android:gravity="center"
-        android:stateListAnimator="@null"
         android:text="@string/edit_profile"
         android:textAllCaps="false"
         android:textColor="@color/colorPrimary" />

@@ -92,6 +92,7 @@
             android:id="@+id/comment_recyclerview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingStart="8dp" />
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp" />
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 </LinearLayout>
