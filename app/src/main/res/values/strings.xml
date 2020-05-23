@@ -50,7 +50,7 @@
     <string name="hide_post_ques">Hide this post?</string>
     <string name="delete_post_ques">Delete this post?</string>
     <string name="follow_you">Follow you!</string>
-    <string name="like_your_post">Like your post!</string>
+    <string name="like_your_post">Liked your post!</string>
     <string name="commented_on_your_post">Commented on your post: </string>
     <string name="click_back">"Please click BACK again to exit"</string>
     <string name="required">Required</string>

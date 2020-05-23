@@ -63,8 +63,8 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
             holder.content.setText(context.getString(R.string.like_your_post));
         else {
             String[] temp = notification.getContent().split(": ");
-            holder.content.setText(context.getString(R.string.commented_on_your_post));
-            holder.content.append(temp[1]);
+            String s = context.getString(R.string.commented_on_your_post) + " " + temp[1];
+            holder.content.setText(s);
         }
 
         setContentImage(notification, holder);
