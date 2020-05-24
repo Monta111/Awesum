@@ -173,7 +173,6 @@
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:background="@drawable/default_button"
-        android:stateListAnimator="@null"
         android:textAllCaps="false"
         android:textColor="@color/colorPrimary"
         android:visibility="gone" />
