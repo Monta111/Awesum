@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/notification"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -45,13 +46,20 @@
                 android:maxLines="1" />
         </LinearLayout>
 
-        <ImageView
-            android:id="@+id/content_image"
+        <androidx.cardview.widget.CardView
+            android:id="@+id/outter_content"
             android:layout_width="60dp"
             android:layout_height="60dp"
+            android:background="@color/colorBlack"
             android:layout_marginTop="4dp"
             android:layout_marginBottom="4dp"
-            android:background="@color/colorBlack" />
+            app:cardCornerRadius="10dp">
+
+            <ImageView
+                android:id="@+id/content_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </androidx.cardview.widget.CardView>
 
     </LinearLayout>
 

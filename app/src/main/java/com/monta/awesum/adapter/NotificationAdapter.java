@@ -10,6 +10,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -105,6 +106,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     private void setContentImage(Notification notification, NotificationHolder holder) {
         String contentId = notification.getContentId();
         if (!contentId.equals("null")) {
+            holder.outterContent.setVisibility(View.VISIBLE);
             FirebaseDatabase.getInstance().getReference(AwesumApp.DB_POST).child(contentId)
                     .addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
@@ -129,24 +131,23 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
 
                         }
                     });
-            FirebaseDatabase.getInstance().getReference(AwesumApp.DB_POST).child(contentId).child("url")
-                    .addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            holder.contentImage.setVisibility(View.VISIBLE);
-                            for (DataSnapshot data : dataSnapshot.getChildren()) {
-                                Glide.with(context).load(data.getValue()).placeholder(R.drawable.ic_image).into(holder.contentImage);
-                                break;
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                        }
-                    });
+//            FirebaseDatabase.getInstance().getReference(AwesumApp.DB_POST).child(contentId).child("url")
+//                    .addListenerForSingleValueEvent(new ValueEventListener() {
+//                        @Override
+//                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                            for (DataSnapshot data : dataSnapshot.getChildren()) {
+//                                Glide.with(context).load(data.getValue()).placeholder(R.drawable.ic_image).into(holder.contentImage);
+//                                break;
+//                            }
+//                        }
+//
+//                        @Override
+//                        public void onCancelled(@NonNull DatabaseError databaseError) {
+//
+//                        }
+//                    });
         } else
-            holder.contentImage.setVisibility(View.INVISIBLE);
+            holder.outterContent.setVisibility(View.INVISIBLE);
     }
 
     private void setItemClickAction(NotificationHolder holder, Notification notification) {
@@ -194,6 +195,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         private TextView username;
         private TextView content;
         private ImageView contentImage;
+        private CardView outterContent;
 
         NotificationHolder(@NonNull View itemView) {
             super(itemView);
@@ -202,6 +204,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
             content = itemView.findViewById(R.id.content);
             contentImage = itemView.findViewById(R.id.content_image);
             notificationLayout = itemView.findViewById(R.id.notification);
+            outterContent = itemView.findViewById(R.id.outter_content);
         }
     }
 }
